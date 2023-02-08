@@ -1,64 +1,88 @@
 package com.binus.projekuasmobileprog;
 
-import android.os.Bundle;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link LokasiFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+
 public class LokasiFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    LatLng cgpAlpha = new LatLng(-6.193924061113853, 106.78813220277623);
+    LatLng cgpBeta = new LatLng(-6.20175020412279, 106.78223868546155);
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private ArrayList<LatLng> locationArrayList;
 
-    public LokasiFragment() {
-        // Required empty public constructor
-    }
+    private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LokasiFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LokasiFragment newInstance(String param1, String param2) {
-        LokasiFragment fragment = new LokasiFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+        /**
+         * Manipulates the map once available.
+         * This callback is triggered when the map is ready to be used.
+         * This is where we can add markers or lines, add listeners or move the camera.
+         * In this case, we just add a marker near Sydney, Australia.
+         * If Google Play services is not installed on the device, the user will be prompted to
+         * install it inside the SupportMapFragment. This method will only be triggered once the
+         * user has installed Google Play services and returned to the app.
+         */
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            for (int i = 0; i < locationArrayList.size(); i++) {
+
+                String markerName = "";
+
+                if (i == 0) {
+
+                    markerName = "CGP Alpha";
+                }
+
+                else {
+
+                    markerName = "CGP Beta";
+                }
+                
+                // below line is use to add marker to each location of our array list.
+                googleMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title(markerName));
+
+                // below line is use to move our camera to the specific location.
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
+            }
         }
+    };
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
+        locationArrayList = new ArrayList<>();
+
+        locationArrayList.add(cgpAlpha);
+        locationArrayList.add(cgpBeta);
+
+        return inflater.inflate(R.layout.fragment_lokasi, container, false);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_lokasi, container, false);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(callback);
+        }
     }
 }
